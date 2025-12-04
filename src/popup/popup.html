@@ -37,6 +37,28 @@
         </select>
       </section>
 
+      <!-- Auto-Organize Settings -->
+      <section class="section" id="auto-organize-section">
+        <div class="setting-row">
+          <label class="label" for="auto-organize-toggle">Auto-organize tabs</label>
+          <label class="toggle">
+            <input type="checkbox" id="auto-organize-toggle" />
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="setting-row" id="threshold-row" style="display: none;">
+          <label class="label" for="threshold-input">Threshold (tabs)</label>
+          <input
+            type="number"
+            id="threshold-input"
+            class="input input-small"
+            min="5"
+            max="100"
+            value="15"
+          />
+        </div>
+      </section>
+
       <!-- Divider -->
       <hr class="divider" />
 
@@ -50,6 +72,13 @@
             <path d="M12 2V6M12 18V22M6 12H2M22 12H18M19.07 4.93L16.24 7.76M7.76 16.24L4.93 19.07M19.07 19.07L16.24 16.24M7.76 7.76L4.93 4.93"/>
           </svg>
           <span id="btn-text">Organize Tabs</span>
+        </button>
+        <button id="undo-btn" class="btn btn-secondary" style="display: none;">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 7v6h6M21 17v-6h-6"/>
+            <path d="M3 13a9 9 0 0 1 9-9 9 9 0 0 1 8.7 6.7M21 11a9 9 0 0 1-9 9 9 9 0 0 1-8.7-6.7"/>
+          </svg>
+          <span>Undo</span>
         </button>
       </section>
 

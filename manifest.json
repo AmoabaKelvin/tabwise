@@ -27,5 +27,14 @@
   },
   "background": {
     "service_worker": "service-worker.js"
+  },
+  "commands": {
+    "organize-tabs": {
+      "suggested_key": {
+        "default": "Ctrl+Shift+O",
+        "mac": "Command+Shift+O"
+      },
+      "description": "Organize tabs into groups"
+    }
   }
 }

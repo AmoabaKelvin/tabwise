@@ -6,6 +6,15 @@ export interface TabInfo {
   groupName?: string; // Existing group name if any
 }
 
+// Tab state for undo functionality
+export interface TabState {
+  tabId: number;
+  groupId: number | null; // null if ungrouped
+  groupTitle?: string;
+  groupColor?: chrome.tabGroups.ColorEnum;
+  index: number; // Tab position
+}
+
 // A single group from OpenAI response
 export interface TabGroup {
   name: string;
@@ -34,6 +43,8 @@ export type TabGroupColor =
 export const STORAGE_KEYS = {
   API_KEY: 'openai_api_key',
   SELECTED_MODEL: 'selected_model',
+  AUTO_ORGANIZE_ENABLED: 'auto_organize_enabled',
+  AUTO_ORGANIZE_THRESHOLD: 'auto_organize_threshold',
 } as const;
 
 // OpenRouter model info
@@ -76,7 +87,7 @@ export interface OpenAIResponse {
 }
 
 // Message passing types
-export type MessageType = 'ORGANIZE_TABS' | 'GET_STATUS';
+export type MessageType = 'ORGANIZE_TABS' | 'GET_STATUS' | 'UNDO_ORGANIZE';
 
 export interface OrganizeTabsMessage {
   type: 'ORGANIZE_TABS';
@@ -86,7 +97,11 @@ export interface GetStatusMessage {
   type: 'GET_STATUS';
 }
 
-export type Message = OrganizeTabsMessage | GetStatusMessage;
+export interface UndoOrganizeMessage {
+  type: 'UNDO_ORGANIZE';
+}
+
+export type Message = OrganizeTabsMessage | GetStatusMessage | UndoOrganizeMessage;
 
 export interface OrganizeResult {
   success: boolean;
@@ -98,4 +113,11 @@ export interface OrganizeResult {
 export interface StatusResponse {
   isOrganizing: boolean;
   lastResult?: OrganizeResult;
+  canUndo: boolean; // Whether undo is available
+}
+
+export interface UndoResult {
+  success: boolean;
+  tabsRestored?: number;
+  error?: string;
 }

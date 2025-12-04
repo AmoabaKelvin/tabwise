@@ -40,17 +40,22 @@ export async function ungroupAllTabs(): Promise<void> {
 export async function createTabGroup(
   name: string,
   tabIds: number[],
-  color: chrome.tabGroups.ColorEnum
+  color: chrome.tabGroups.ColorEnum,
+  collapsed: boolean = false
 ): Promise<number> {
   if (tabIds.length === 0) return -1;
 
   const groupId = await chrome.tabs.group({ tabIds });
-  await chrome.tabGroups.update(groupId, { title: name, color });
+  await chrome.tabGroups.update(groupId, { title: name, color, collapsed });
 
   return groupId;
 }
 
 export async function organizeTabsIntoGroups(groups: TabGroup[]): Promise<number> {
+  // Get the active tab to keep its group expanded
+  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  const activeTabId = activeTab?.id;
+
   // First, ungroup all existing tabs
   await ungroupAllTabs();
 
@@ -59,7 +64,9 @@ export async function organizeTabsIntoGroups(groups: TabGroup[]): Promise<number
   // Create each group
   for (const group of groups) {
     if (group.tabIds.length > 0) {
-      await createTabGroup(group.name, group.tabIds, group.color);
+      // Collapse groups that don't contain the active tab
+      const containsActiveTab = activeTabId !== undefined && group.tabIds.includes(activeTabId);
+      await createTabGroup(group.name, group.tabIds, group.color, !containsActiveTab);
       groupsCreated++;
     }
   }

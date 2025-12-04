@@ -74,3 +74,28 @@ export interface OpenAIResponse {
     };
   }[];
 }
+
+// Message passing types
+export type MessageType = 'ORGANIZE_TABS' | 'GET_STATUS';
+
+export interface OrganizeTabsMessage {
+  type: 'ORGANIZE_TABS';
+}
+
+export interface GetStatusMessage {
+  type: 'GET_STATUS';
+}
+
+export type Message = OrganizeTabsMessage | GetStatusMessage;
+
+export interface OrganizeResult {
+  success: boolean;
+  tabsOrganized?: number;
+  groupsCreated?: number;
+  error?: string;
+}
+
+export interface StatusResponse {
+  isOrganizing: boolean;
+  lastResult?: OrganizeResult;
+}

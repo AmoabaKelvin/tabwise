@@ -1,7 +1,6 @@
 import { saveApiKey, getApiKey, saveSelectedModel, getSelectedModel } from '../lib/storage';
-import { getCurrentWindowTabs, organizeTabsIntoGroups, getTabCount } from '../lib/tabs';
-import { organizeWithAI } from '../lib/openai';
 import { fetchOpenAIModels } from '../lib/models';
+import { OrganizeResult, StatusResponse } from '../types';
 
 // DOM Elements
 const apiKeyInput = document.getElementById('api-key') as HTMLInputElement;
@@ -31,6 +30,15 @@ async function init(): Promise<void> {
 
   // Load models
   await loadModels();
+
+  // Check if already organizing
+  const status = await getStatus();
+  if (status.isOrganizing) {
+    setLoading(true);
+    pollStatus();
+  } else if (status.lastResult) {
+    showResult(status.lastResult);
+  }
 }
 
 // Load models into dropdown
@@ -88,6 +96,41 @@ function setLoading(loading: boolean): void {
   btnText.textContent = loading ? 'Organizing...' : 'Organize Tabs';
 }
 
+// Show result from organization
+function showResult(result: OrganizeResult): void {
+  if (result.success) {
+    setStatus(
+      `Organized ${result.tabsOrganized} tabs into ${result.groupsCreated} groups`,
+      'success'
+    );
+  } else {
+    setStatus(result.error || 'An error occurred', 'error');
+  }
+}
+
+// Get status from service worker
+async function getStatus(): Promise<StatusResponse> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage({ type: 'GET_STATUS' }, (response: StatusResponse) => {
+      resolve(response || { isOrganizing: false });
+    });
+  });
+}
+
+// Poll status while organizing
+function pollStatus(): void {
+  const interval = setInterval(async () => {
+    const status = await getStatus();
+    if (!status.isOrganizing) {
+      clearInterval(interval);
+      setLoading(false);
+      if (status.lastResult) {
+        showResult(status.lastResult);
+      }
+    }
+  }, 500);
+}
+
 // Save API key
 async function handleSaveKey(): Promise<void> {
   const key = apiKeyInput.value.trim();
@@ -110,7 +153,7 @@ async function handleSaveKey(): Promise<void> {
   setStatus('', '');
 }
 
-// Organize tabs
+// Organize tabs - send message to service worker
 async function handleOrganize(): Promise<void> {
   if (isLoading) return;
 
@@ -123,46 +166,13 @@ async function handleOrganize(): Promise<void> {
   setLoading(true);
   setStatus('', '');
 
-  try {
-    // Get all tabs
-    const tabs = await getCurrentWindowTabs();
-
-    if (tabs.length === 0) {
-      setStatus('No tabs to organize', 'error');
-      setLoading(false);
-      return;
-    }
-
-    if (tabs.length === 1) {
-      setStatus('Need at least 2 tabs to organize', 'error');
-      setLoading(false);
-      return;
-    }
-
-    // Call OpenAI
-    const selectedModel = await getSelectedModel();
-    const result = await organizeWithAI(apiKey, tabs, selectedModel);
-
-    if (result.groups.length === 0) {
-      setStatus('Could not organize tabs', 'error');
-      setLoading(false);
-      return;
-    }
-
-    // Apply tab groups
-    const groupsCreated = await organizeTabsIntoGroups(result.groups);
-    const tabsOrganized = getTabCount(result.groups);
-
-    setStatus(
-      `Organized ${tabsOrganized} tabs into ${groupsCreated} groups`,
-      'success'
-    );
-  } catch (error) {
-    const message = error instanceof Error ? error.message : 'An error occurred';
-    setStatus(message, 'error');
-  } finally {
+  // Send message to service worker
+  chrome.runtime.sendMessage({ type: 'ORGANIZE_TABS' }, (result: OrganizeResult) => {
     setLoading(false);
-  }
+    if (result) {
+      showResult(result);
+    }
+  });
 }
 
 // Event listeners

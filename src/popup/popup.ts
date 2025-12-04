@@ -234,10 +234,14 @@ async function handleAutoOrganizeToggle(): Promise<void> {
 
 // Handle threshold change
 async function handleThresholdChange(): Promise<void> {
-  const threshold = parseInt(thresholdInput.value, 10);
-  if (!isNaN(threshold) && threshold >= 5 && threshold <= 100) {
-    await saveAutoOrganizeThreshold(threshold);
+  let threshold = parseInt(thresholdInput.value, 10);
+  if (isNaN(threshold)) {
+    threshold = await getAutoOrganizeThreshold();
+  } else {
+    threshold = Math.max(5, Math.min(100, threshold));
   }
+  thresholdInput.value = threshold.toString();
+  await saveAutoOrganizeThreshold(threshold);
 }
 
 // Event listeners

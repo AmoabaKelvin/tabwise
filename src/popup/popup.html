@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=320">
+  <title>Tabwise</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <h1 class="logo">tabwise</h1>
+    </header>
+
+    <main class="main">
+      <!-- API Key Section -->
+      <section class="section" id="api-section">
+        <label class="label" for="api-key">OpenAI API Key</label>
+        <div class="input-group">
+          <input
+            type="password"
+            id="api-key"
+            class="input"
+            placeholder="sk-..."
+            autocomplete="off"
+          />
+          <button id="save-key" class="btn btn-secondary">Save</button>
+        </div>
+        <p class="hint" id="key-status"></p>
+      </section>
+
+      <!-- Model Selection -->
+      <section class="section" id="model-section">
+        <label class="label" for="model-select">Model</label>
+        <select id="model-select" class="select">
+          <option value="">Loading models...</option>
+        </select>
+      </section>
+
+      <!-- Divider -->
+      <hr class="divider" />
+
+      <!-- Action Section -->
+      <section class="section">
+        <button id="organize-btn" class="btn btn-primary" disabled>
+          <svg class="icon" id="organize-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 11H5M19 11C20.1046 11 21 11.8954 21 13V19C21 20.1046 20.1046 21 19 21H5C3.89543 21 3 20.1046 3 19V13C3 11.8954 3.89543 11 5 11M19 11V9C19 7.89543 18.1046 7 17 7M5 11V9C5 7.89543 5.89543 7 7 7M7 7V5C7 3.89543 7.89543 3 9 3H15C16.1046 3 17 3.89543 17 5V7M7 7H17"/>
+          </svg>
+          <svg class="icon spinner" id="loading-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2V6M12 18V22M6 12H2M22 12H18M19.07 4.93L16.24 7.76M7.76 16.24L4.93 19.07M19.07 19.07L16.24 16.24M7.76 7.76L4.93 4.93"/>
+          </svg>
+          <span id="btn-text">Organize Tabs</span>
+        </button>
+      </section>
+
+      <!-- Status Section -->
+      <section class="section" id="status-section">
+        <p class="status" id="status-message"></p>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <a href="https://github.com/AmoabaKelvin/tabwise" target="_blank" class="footer-link">github.com/AmoabaKelvin/tabwise</a>
+    </footer>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
